@@ -2,12 +2,15 @@
 
 from __future__ import annotations
 
+import os
 from pathlib import Path
 
-from pydantic import Field, SecretStr
+from pydantic import Field, SecretStr, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
-PROJECT_ROOT = Path(__file__).resolve().parents[2]
+PROJECT_ROOT = Path(
+    os.environ.get("CROSSBORDER_PROJECT_ROOT", Path(__file__).resolve().parents[2])
+).resolve()
 
 
 class Settings(BaseSettings):
@@ -39,6 +42,13 @@ class Settings(BaseSettings):
     test_months: int = 12
     top_k: int = 5
 
+    @field_validator("deepseek_api_key", mode="before")
+    @classmethod
+    def blank_api_key_is_unset(cls, value: object) -> object:
+        if isinstance(value, str) and not value.strip():
+            return None
+        return value
+
     def ensure_runtime_dirs(self) -> None:
         for path in (
             self.model_artifact_path.parent,
@@ -52,4 +62,3 @@ class Settings(BaseSettings):
 
 def get_settings() -> Settings:
     return Settings()
-

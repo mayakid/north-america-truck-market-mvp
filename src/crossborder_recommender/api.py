@@ -74,7 +74,11 @@ async def external_handler(_, exc: ExternalServiceError) -> JSONResponse:
 @app.get("/health", response_model=HealthResponse)
 def health() -> HealthResponse:
     settings = get_settings()
-    model_ready = settings.model_artifact_path.exists()
+    try:
+        _ = get_service().bundle
+        model_ready = True
+    except Exception:
+        model_ready = False
     feature_ready = settings.feature_snapshot_path.exists()
     return HealthResponse(
         status="ok" if model_ready else "degraded",

@@ -17,6 +17,7 @@
   <img alt="BTS data" src="https://img.shields.io/badge/BTS_Data-2023.01—2026.05-0e7c72?style=flat-square" />
   <img alt="NDCG at 5" src="https://img.shields.io/badge/NDCG%405-0.9276-ff6b3d?style=flat-square" />
   <img alt="Stack" src="https://img.shields.io/badge/Stack-LightGBM_·_FastAPI_·_React-3366cc?style=flat-square" />
+  <img alt="Docker Compose" src="https://img.shields.io/badge/Run-Docker_Compose-2496ed?style=flat-square&logo=docker&logoColor=white" />
 </p>
 
 > [!IMPORTANT]
@@ -26,7 +27,7 @@
   <a href="#产品演示">产品演示</a> ·
   <a href="#关键产品决策">产品决策</a> ·
   <a href="#验证结果">验证结果</a> ·
-  <a href="#本地运行">本地运行</a>
+  <a href="#docker-一键启动">Docker 一键启动</a>
 </p>
 
 ---
@@ -215,7 +216,61 @@ flowchart LR
 - 建立“市场发现 → 查价 → 预订 → 结果反馈”闭环。
 - 用 shadow test / A/B test 评估查价发起率和 booking conversion，而不是直接替代人工判断。
 
-## 本地运行
+## Docker 一键启动
+
+Docker 镜像内置的是**脱敏后的真实 BTS 模型**，全新克隆无需下载数据或重新训练，即可复现 README 中的真实 Top 5、趋势、SHAP 与口岸辅助结果。
+
+```bash
+git clone https://github.com/mayakid/north-america-truck-market-mvp.git
+cd north-america-truck-market-mvp
+docker compose up --build
+```
+
+等待 `frontend` 和 `api` 显示 healthy 后，打开 **http://localhost:3000**。
+
+也可以使用带健康等待的一键脚本：
+
+```bash
+./scripts/docker-up.sh
+```
+
+停止服务：
+
+```bash
+docker compose down
+```
+
+### 可选：启用 DeepSeek
+
+无 Key 时系统会明确使用本地受约束回退，所有排序、趋势和 SHAP 仍可正常运行。如需调用 DeepSeek：
+
+```bash
+cp .env.docker.example .env.docker
+# 只在本机 .env.docker 中填写 DEEPSEEK_API_KEY
+docker compose up --build
+```
+
+`.env.docker` 已被 Git 和 Docker 构建上下文排除；Key 只进入 Python API 容器，不会进入前端镜像或浏览器。空白 Key 会被视为“未配置”，不会触发无效外部调用。
+
+### 容器边界
+
+```mermaid
+flowchart LR
+    U["Browser · localhost:3000"] --> F["Frontend standalone\n同源 /api 代理"]
+    F -->|"Compose 内网 http://api:8000"| A["FastAPI · 非 root 用户"]
+    A --> M["脱敏真实模型\nBTS 截止 2026-05"]
+    A -. "可选、仅服务器端" .-> D["DeepSeek API"]
+```
+
+- 宿主机只开放 `127.0.0.1:3000`；FastAPI 只在 Compose 内网暴露。
+- 两个服务都有健康检查，前端会等待真实模型 API 就绪后再启动。
+- 前端使用 vinext production standalone 输出，运行镜像不携带完整开发依赖。
+- 建议为 Docker Desktop 至少预留 1 GB 可用内存；API 固定单进程运行，避免模型被多 worker 重复加载。
+- `ranker.joblib` 使用 joblib 序列化（具备 pickle 语义），只加载仓库内置或自行训练且来源可信的模型文件。
+- 公开模型由 [export_public_artifact.py](scripts/export_public_artifact.py) 从本地真实模型导出；导出器会拒绝合成模型、未通过验收门槛的模型、本机用户路径和 Key-like 元数据。
+- 当前公开模型 SHA-256：`c24419f057ea456551631781435f2c12194e89422a33f655bdaa0920ab4fbe20`。
+
+## 手动开发运行
 
 需要 Python 3.11+ 与 Node.js 22.13+。
 
@@ -225,7 +280,7 @@ source .venv/bin/activate
 python -m pip install -e '.[rag,dev]'
 ```
 
-真实数据和模型文件因体积与来源不提交。按 [数据契约](docs/data-contract.md) 下载 BTS 月度 ZIP 后：
+完整训练数据、测试预测和原始模型不提交。Docker 目录只保留一份路径脱敏的公开展示模型；如需自行训练，按 [数据契约](docs/data-contract.md) 下载 BTS 月度 ZIP 后：
 
 ```bash
 crossborder prepare \
@@ -263,13 +318,15 @@ cd frontend && npm test
 ```text
 src/crossborder_recommender/  数据处理、特征、排序、解释、CLI 与 API
 frontend/                     React 19 + vinext + Recharts 可视化网站
+compose.yaml                  前后端编排、依赖顺序与健康检查
+docker/model/                 脱敏后的真实 Docker 展示模型
 docs/assets/                  真实产品截图与留出测试图
 docs/                         数据契约、模型卡、可审计评估摘要
 knowledge/                    LightRAG 约束证据
 tests/                        边界、防泄漏与 API 自动化测试
 data/raw/                     BTS 原始 ZIP（不提交）
 data/processed/               规范化 Parquet（不提交）
-artifacts/                    模型包（不提交）
+artifacts/                    本地训练模型和预测产物（不提交）
 ```
 
 ---

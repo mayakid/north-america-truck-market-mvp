@@ -1,0 +1,60 @@
+name: drayeasy-market-radar
+
+services:
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: drayeasy-market-radar-api:local
+    init: true
+    env_file:
+      - path: .env.docker
+        required: false
+    expose:
+      - "8000"
+    healthcheck:
+      test:
+        - CMD
+        - python
+        - -c
+        - >-
+          import json, urllib.request;
+          response = urllib.request.urlopen('http://127.0.0.1:8000/health', timeout=4);
+          payload = json.load(response);
+          raise SystemExit(0 if response.status == 200 and payload.get('model_ready') is True else 1)
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 20s
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    image: drayeasy-market-radar-frontend:local
+    init: true
+    environment:
+      RECOMMENDER_API_URL: http://api:8000
+    depends_on:
+      api:
+        condition: service_healthy
+    ports:
+      - "127.0.0.1:${APP_PORT:-3000}:3000"
+    healthcheck:
+      test:
+        - CMD
+        - node
+        - -e
+        - >-
+          fetch('http://127.0.0.1:3000/api/health')
+          .then(async response => {
+            const payload = await response.json();
+            if (!response.ok || payload.model_ready !== true) process.exit(1);
+          })
+          .catch(() => process.exit(1))
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 20s
+    restart: unless-stopped

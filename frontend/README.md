@@ -2,6 +2,16 @@
 
 产品经理候选人作品集概念的 React 19 + vinext + Recharts 可视化网站；非 DrayEasy 官方产品。浏览器只访问同源的 `/api/*`，服务端代理再连接 Python 推荐 API，大模型密钥不会进入前端代码。
 
+## Docker 一键启动
+
+在仓库根目录运行：
+
+```bash
+docker compose up --build
+```
+
+Compose 会等待真实模型 API healthy 后再启动 production standalone 前端，默认访问 `http://localhost:3000`。
+
 ## 本地启动
 
 先在项目根目录启动模型 API：

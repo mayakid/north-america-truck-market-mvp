@@ -1,0 +1,12 @@
+node_modules
+dist
+.next
+.vinext
+.wrangler
+coverage
+outputs
+work
+.env
+.env.*
+*.log
+.DS_Store
