@@ -23,10 +23,10 @@ test("server-renders the finished recommendation experience", async () => {
 
   const html = await response.text();
   assert.match(html, /<html lang="zh-CN">/i);
-  assert.match(html, /<title>北境市场雷达｜加拿大卡车市场机会推荐<\/title>/i);
-  assert.match(html, /把运输需求/);
+  assert.match(html, /<title>DrayEasy Market Radar｜加拿大卡车市场机会推荐 MVP<\/title>/i);
+  assert.match(html, /把一条运输计划/);
   assert.match(html, /生成市场建议/);
-  assert.match(html, /美国出口加拿大 · 卡车运输/);
+  assert.match(html, /PM MVP CASE STUDY/);
   assert.doesNotMatch(html, /codex-preview|Your site is taking shape|SkeletonPreview/i);
 });
 

@@ -1,0 +1,49 @@
+{
+  "data_window": "2023-01..2026-05",
+  "split_ranges": {
+    "train": "2024-01..2024-11",
+    "validation": "2024-12..2025-05",
+    "test": "2025-06..2026-05"
+  },
+  "test_queries": 41326,
+  "label_formula": "0.60 * size_percentile + 0.40 * yoy_growth_percentile",
+  "metrics": {
+    "lambdarank": {
+      "ndcg@5": 0.9275844816298875,
+      "precision@5": 0.7381648356966558,
+      "map@5": 0.6722942780170674,
+      "top1_accuracy": 0.5058316798141606,
+      "spearman": 0.5289701218509905
+    },
+    "historical_volume_baseline": {
+      "ndcg@5": 0.9184701258099802,
+      "precision@5": 0.7824565648744131,
+      "map@5": 0.7170349578150963,
+      "top1_accuracy": 0.48993369791414604,
+      "spearman": 0.5743844663081179
+    },
+    "recent_growth_baseline": {
+      "ndcg@5": 0.8027530717169555,
+      "precision@5": 0.6441900982432366,
+      "map@5": 0.5817188533449483,
+      "top1_accuracy": 0.224555969607511,
+      "spearman": 0.01731471392952486
+    }
+  },
+  "ndcg_at_5_confidence_intervals_95": {
+    "lambdarank": [0.9269714254990974, 0.9282636128263486],
+    "historical_volume_baseline": [0.9178398948695305, 0.9191276121006361],
+    "recent_growth_baseline": [0.8016179037793183, 0.8040005761105832]
+  },
+  "acceptance_gate": {
+    "metric": "ndcg@5",
+    "rule": "model must exceed historical-volume baseline on the held-out test period",
+    "absolute_lift": 0.0091143558199073,
+    "passed": true
+  },
+  "source_hashes": {
+    "table2_history_sha256": "8bcdc7a15f1742f3b5d8b2775470bb9a98471f92a07a0f82ba7af67b2bce1da8",
+    "table1_ports_sha256": "f838d17482bb52bdb6f3149c823540d55ee0b45b1d8c74c28fa04fa57fab5bc8",
+    "raw_manifest_sha256": "88ccbfee5e00e5e036fc523df0a3a5189c957d7d5c03f4e0de417857c3bd9d69"
+  }
+}

@@ -130,6 +130,20 @@ summary:focus-visible {
   padding: 8px 13px;
 }
 
+.topbar-meta {
+  align-items: center;
+  display: flex;
+  gap: 12px;
+}
+
+.portfolio-note {
+  color: var(--muted);
+  font-family: Arial, sans-serif;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+}
+
 .service-status > span {
   background: #9ba39f;
   border-radius: 50%;
@@ -1188,6 +1202,7 @@ footer {
 
   .topbar { padding-top: 18px; }
   .brand small { display: none; }
+  .portfolio-note { display: none; }
   .service-status { font-size: 10px; }
   .hero { min-height: auto; padding-bottom: 64px; }
   .hero h1 { font-size: 48px; }

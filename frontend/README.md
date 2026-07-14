@@ -1,6 +1,6 @@
-# 北境市场雷达前端
+# DrayEasy Market Radar 前端
 
-React 19 + vinext + Recharts 可视化网站。浏览器只访问同源的 `/api/*`；服务端代理再连接 Python 推荐 API，DeepSeek 密钥不会进入前端代码。
+产品经理候选人作品集概念的 React 19 + vinext + Recharts 可视化网站；非 DrayEasy 官方产品。浏览器只访问同源的 `/api/*`，服务端代理再连接 Python 推荐 API，大模型密钥不会进入前端代码。
 
 ## 本地启动
 

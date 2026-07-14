@@ -14,6 +14,10 @@ htmlcov/
 /build/
 *.egg-info/
 
+# Local agent and code-graph caches (never publish workspace metadata)
+.agents/
+.codebase-memory/
+
 # Generated data, indexes, and model artifacts
 data/raw/
 data/processed/

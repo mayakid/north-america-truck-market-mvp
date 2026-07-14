@@ -2,9 +2,9 @@ import type { Metadata } from "next";
 import { headers } from "next/headers";
 import "./globals.css";
 
-const title = "北境市场雷达｜加拿大卡车市场机会推荐";
+const title = "DrayEasy Market Radar｜加拿大卡车市场机会推荐 MVP";
 const description =
-  "输入美国出发州、商品和计划月份，获取加拿大省/地区 Top 5、DeepSeek 建议、历史趋势与模型依据。";
+  "产品经理作品集 MVP：基于真实 BTS 数据，为美国出口加拿大的卡车运输生成省级 Top 5、历史趋势与可解释依据。";
 
 export async function generateMetadata(): Promise<Metadata> {
   const requestHeaders = await headers();
@@ -13,7 +13,7 @@ export async function generateMetadata(): Promise<Metadata> {
   const protocol =
     requestHeaders.get("x-forwarded-proto") ?? (host.startsWith("localhost") ? "http" : "https");
   const origin = `${protocol}://${host}`;
-  const imageUrl = `${origin}/og.png`;
+  const imageUrl = `${origin}/og-drayeasy.png`;
 
   return {
     metadataBase: new URL(origin),
@@ -24,7 +24,7 @@ export async function generateMetadata(): Promise<Metadata> {
       description,
       type: "website",
       locale: "zh_CN",
-      images: [{ url: imageUrl, width: 1731, height: 909, alt: "北境市场雷达" }],
+      images: [{ url: imageUrl, width: 1731, height: 909, alt: "DrayEasy Market Radar 产品经理作品集 MVP" }],
     },
     twitter: {
       card: "summary_large_image",

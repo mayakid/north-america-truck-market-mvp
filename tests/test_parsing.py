@@ -22,6 +22,17 @@ def test_deterministic_parser_extracts_confirmed_query_fields():
     assert parser.last_source == "deterministic_fallback"
 
 
+def test_deterministic_parser_handles_truck_word_inside_fleet_phrase():
+    parser = NaturalLanguageParser(Settings())
+
+    parsed = parser.parse(
+        "Michigan（密歇根州）的中型卡车承运商，"
+        "计划10月运输汽车零部件到加拿大，请推荐市场。"
+    )
+
+    assert parsed.fleet_size.value == "medium"
+
+
 def test_non_canada_request_is_rejected():
     parser = NaturalLanguageParser(Settings())
     with pytest.raises(InvalidInputError):

@@ -155,6 +155,10 @@ function compactLabel(value: string, max = 15): string {
   return value.length > max ? `${value.slice(0, max)}…` : value;
 }
 
+function explanationBackendLabel(value?: string): string {
+  return value?.toLowerCase().includes("deepseek") ? "DEEPSEEK" : "GROUNDED AI";
+}
+
 function uniqueEvidence(recommendations: MarketRecommendation[]): Evidence[] {
   const seen = new Set<string>();
   return recommendations.flatMap((item) => item.evidence).filter((item) => {
@@ -222,6 +226,15 @@ export default function Home() {
     [result],
   );
 
+  const auxiliaryPortData = useMemo(
+    () =>
+      result?.auxiliary_ports.map((port) => ({
+        ...port,
+        display_name: port.port_name ?? `Port ${port.port_code}`,
+      })) ?? [],
+    [result],
+  );
+
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const cleanQuery = query.trim();
@@ -274,41 +287,44 @@ export default function Home() {
   return (
     <main className="site-shell">
       <header className="topbar">
-        <a className="brand" href="#top" aria-label="北境市场雷达首页">
-          <span className="brand-mark" aria-hidden="true">N</span>
+        <a className="brand" href="#top" aria-label="DrayEasy Market Radar 首页">
+          <span className="brand-mark" aria-hidden="true">D</span>
           <span>
-            <strong>北境市场雷达</strong>
-            <small>Canada Truck Market Intelligence</small>
+            <strong>DrayEasy Market Radar</strong>
+            <small>North America Market Intelligence</small>
           </span>
         </a>
-        <div className={`service-status ${health?.model_ready ? "is-online" : ""}`}>
-          <span aria-hidden="true" />
-          {health?.model_ready ? "模型在线" : "等待模型服务"}
+        <div className="topbar-meta">
+          <span className="portfolio-note">PM PORTFOLIO CONCEPT · NON-OFFICIAL</span>
+          <div className={`service-status ${health?.model_ready ? "is-online" : ""}`}>
+            <span aria-hidden="true" />
+            {health?.model_ready ? "模型与数据就绪" : "等待模型服务"}
+          </div>
         </div>
       </header>
 
       <section className="hero" id="top">
         <div className="hero-copy">
-          <p className="eyebrow"><span>01</span> 美国出口加拿大 · 卡车运输</p>
+          <p className="eyebrow"><span>01</span> DRAYEASY · PM MVP CASE STUDY</p>
           <h1>
-            把运输需求，
-            <em>变成可解释的市场路线图。</em>
+            把一条运输计划，
+            <em>转化为加拿大市场优先级。</em>
           </h1>
           <p className="hero-lead">
-            输入出发州、商品和计划月份，系统会给出加拿大省/地区 Top 5、DeepSeek
-            建议、真实历史趋势与模型依据。
+            面向美国出口加拿大的卡车承运商：输入出发州、商品与月份，获得省级 Top 5、
+            24 个月真实趋势、关键驱动因素与可追溯的 AI 辅助建议。
           </p>
           <div className="scope-strip" aria-label="分析范围">
-            <span>13 个候选省/地区</span>
-            <span>60% 规模 + 40% 同比</span>
-            <span>口岸独立辅助</span>
+            <span>BTS 真实月度数据 · 2023.01—2026.05</span>
+            <span>13 个省区 → Top 5</span>
+            <span>LambdaRank 可解释排序</span>
           </div>
         </div>
 
         <form className="query-panel" onSubmit={submit}>
           <div className="panel-kicker">
-            <span>智能分析台</span>
-            <span className="live-dot">BTS DATA</span>
+            <span>市场机会工作台</span>
+            <span className="live-dot">REAL BTS DATA</span>
           </div>
           <label htmlFor="market-query">描述你的运输计划</label>
           <textarea
@@ -332,7 +348,7 @@ export default function Home() {
               <span aria-hidden="true">↗</span>
             </button>
           </div>
-          <p className="privacy-note">DeepSeek 密钥仅在服务器端使用，不会进入浏览器。</p>
+          <p className="privacy-note">大模型密钥仅在服务器端使用；失败时会明确切换到本地受约束解释。</p>
           {error ? <p className="error-message" role="alert">{error}</p> : null}
         </form>
       </section>
@@ -340,9 +356,9 @@ export default function Home() {
       {!result && !loading ? (
         <section className="preview-band" aria-label="分析内容预览">
           <div className="preview-copy">
-            <p className="section-number">分析输出 / 04</p>
-            <h2>每一个建议，都能沿着数据往回看。</h2>
-            <p>提交需求后，这里将绘制真实 Top 5 排名、24 个月趋势、SHAP 因素与口岸辅助图。</p>
+            <p className="section-number">决策工作流 / 04</p>
+            <h2>机会发现、趋势判断与证据复核，在一个工作流里完成。</h2>
+            <p>提交需求后，系统将绘制真实 Top 5 排名、24 个月趋势、SHAP 因素与独立口岸辅助图。</p>
           </div>
           <div className="empty-chart" role="img" aria-label="等待真实数据的趋势图区域">
             <div className="empty-chart-grid" />
@@ -368,7 +384,7 @@ export default function Home() {
 
       {result ? (
         <div className="results" id="analysis-results">
-          <section className="result-intro">
+          <section className="result-intro" id="decision-output">
             <div>
               <p className="section-number">智能结论 / {formatDate(result.data_cutoff)} 数据</p>
               <h2>{result.request.origin_state} · HS {result.request.commodity_code} 的加拿大机会</h2>
@@ -382,7 +398,7 @@ export default function Home() {
 
           <section className="summary-card">
             <div className="summary-label">
-              <span>DEEPSEEK</span>
+              <span>{explanationBackendLabel(result.methodology.explanation)}</span>
               <strong>决策摘要</strong>
             </div>
             <div className="summary-copy">
@@ -390,13 +406,13 @@ export default function Home() {
             </div>
           </section>
 
-          <section className="content-section">
+          <section className="content-section" id="market-ranking">
             <div className="section-heading">
               <div>
                 <p className="section-number">市场排序 / 01</p>
                 <h2>加拿大省/地区 Top 5</h2>
               </div>
-              <p>机会分是校准后的排序信号，不代表成功概率。</p>
+              <p>相对机会指数 0–100，是校准后的排序信号，不代表成功概率。</p>
             </div>
 
             <div className="ranking-layout">
@@ -469,7 +485,7 @@ export default function Home() {
             </div>
           </section>
 
-          <section className="content-section trend-section">
+          <section className="content-section trend-section" id="market-trends">
             <div className="section-heading trend-heading">
               <div>
                 <p className="section-number">历史趋势 / 02</p>
@@ -546,12 +562,12 @@ export default function Home() {
                 </LineChart>
               </ResponsiveContainer>
               <p className="chart-footnote">
-                仅使用 BTS Table 2 的“美国出口加拿大、卡车运输、州＋HS2＋省/地区”月度记录；口岸数据未并入此图。
+                BTS Table 2 · 数据截至 {formatDate(result.data_cutoff)}。仅使用“美国出口加拿大、卡车运输、州＋HS2＋省/地区”月度记录；口岸数据未并入此图。
               </p>
             </div>
           </section>
 
-          <section className="content-section evidence-section">
+          <section className="content-section evidence-section" id="model-explanation">
             <div className="section-heading">
               <div>
                 <p className="section-number">模型依据 / 03</p>
@@ -636,25 +652,25 @@ export default function Home() {
             <ol className="process-flow">
               <li><span>01</span><strong>需求解析</strong><p>{result.methodology.parser ?? "结构化解析"}识别州、商品与月份</p></li>
               <li><span>02</span><strong>候选构建</strong><p>固定评估 13 个加拿大省与地区</p></li>
-              <li><span>03</span><strong>机会排序</strong><p>60% 规模分位数 + 40% 同比增长分位数</p></li>
+              <li><span>03</span><strong>机会排序</strong><p>用 60% 规模 + 40% 增长构造训练标签，再由 LambdaRank 学习排序</p></li>
               <li><span>04</span><strong>证据解释</strong><p>{result.methodology.explanation ?? "解释模型"}结合历史证据生成建议</p></li>
             </ol>
           </section>
 
-          <section className="content-section port-section">
+          <section className="content-section port-section" id="operations-reference">
             <div className="section-heading">
               <div>
-                <p className="section-number">口岸辅助 / 独立统计</p>
-                <h2>相关口岸规模参考</h2>
+                <p className="section-number">INDEPENDENT OPERATIONS REFERENCE</p>
+                <h2>独立口岸运营辅助</h2>
               </div>
               <p>不是“州＋商品＋省＋口岸”的联合估计。</p>
             </div>
-            {result.auxiliary_ports.length ? (
+            {auxiliaryPortData.length ? (
               <div className="port-layout">
                 <div className="chart-card port-chart" role="img" aria-label="独立口岸近12月贸易规模条形图">
                   <ResponsiveContainer width="100%" height={320}>
                     <BarChart
-                      data={result.auxiliary_ports.slice(0, 7)}
+                      data={auxiliaryPortData.slice(0, 7)}
                       layout="vertical"
                       margin={{ top: 12, right: 18, bottom: 8, left: 8 }}
                     >
@@ -668,7 +684,7 @@ export default function Home() {
                       />
                       <YAxis
                         type="category"
-                        dataKey="port_name"
+                        dataKey="display_name"
                         width={120}
                         tickFormatter={(value) => compactLabel(String(value ?? "未知口岸"), 12)}
                         tick={{ fill: "#263630", fontSize: 11 }}
@@ -687,11 +703,11 @@ export default function Home() {
                 <aside className="port-caveat">
                   <span>范围边界</span>
                   <h3>口岸只用来辅助运营判断</h3>
-                  <p>{result.auxiliary_ports[0].caveat}</p>
+                  <p>{auxiliaryPortData[0].caveat}</p>
                   <ul>
-                    {result.auxiliary_ports.slice(0, 3).map((port) => (
+                    {auxiliaryPortData.slice(0, 3).map((port) => (
                       <li key={port.port_code}>
-                        <strong>{port.port_name ?? port.port_code}</strong>
+                        <strong>{port.display_name}</strong>
                         <span>{formatPercent(port.yoy_growth)}</span>
                       </li>
                     ))}
@@ -744,8 +760,8 @@ export default function Home() {
       ) : null}
 
       <footer>
-        <span>北境市场雷达 · 数据驱动的跨境卡车市场机会建议</span>
-        <span>范围：美国出口加拿大 · 卡车 · BTS 月度历史</span>
+        <span>DrayEasy Market Radar · Product Manager Portfolio Concept</span>
+        <span>候选人独立作品 · 非 DrayEasy 官方或已上线产品</span>
       </footer>
     </main>
   );

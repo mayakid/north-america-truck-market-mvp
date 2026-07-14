@@ -171,9 +171,27 @@ class NaturalLanguageParser:
             country = "Mexico"
 
         fleet_size: FleetSize | None = None
-        medium_terms = ("medium carrier", "medium fleet", "中型承运商", "中型车队")
-        small_terms = ("small carrier", "small fleet", "小型承运商", "小型车队")
-        large_terms = ("large carrier", "large fleet", "大型承运商", "大型车队")
+        medium_terms = (
+            "medium carrier",
+            "medium fleet",
+            "中型承运商",
+            "中型卡车承运商",
+            "中型车队",
+        )
+        small_terms = (
+            "small carrier",
+            "small fleet",
+            "小型承运商",
+            "小型卡车承运商",
+            "小型车队",
+        )
+        large_terms = (
+            "large carrier",
+            "large fleet",
+            "大型承运商",
+            "大型卡车承运商",
+            "大型车队",
+        )
         if any(term in lowered for term in medium_terms):
             fleet_size = FleetSize.medium
         elif any(term in lowered for term in small_terms):
