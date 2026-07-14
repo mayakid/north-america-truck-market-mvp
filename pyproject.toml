@@ -1,0 +1,56 @@
+[build-system]
+requires = ["setuptools>=75", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "crossborder-opportunity-recommender"
+version = "0.1.0"
+description = "Province-level Canada truck-market opportunity ranking from BTS TransBorder Freight Data."
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "MIT" }
+authors = [{ name = "Cross-border Recommendation Project" }]
+dependencies = [
+  "fastapi>=0.115,<1",
+  "httpx>=0.27,<1",
+  "joblib>=1.4,<2",
+  "lightgbm>=4.6,<5",
+  "numpy>=1.26,<3",
+  "openai>=2.0,<3",
+  "pandas>=2.2,<3",
+  "pyarrow>=16,<23",
+  "pydantic>=2.10,<3",
+  "pydantic-settings>=2.6,<3",
+  "scipy>=1.13,<2",
+  "scikit-learn>=1.5,<2",
+  "shap>=0.47,<1",
+  "typer>=0.15,<1",
+  "uvicorn>=0.30,<1",
+]
+
+[project.optional-dependencies]
+rag = ["lightrag-hku>=1.4.16,<2"]
+dev = [
+  "pytest>=8.3,<10",
+  "pytest-asyncio>=0.24,<2",
+  "pytest-cov>=6,<8",
+  "ruff>=0.9,<1",
+]
+
+[project.scripts]
+crossborder = "crossborder_recommender.cli:app"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+addopts = "-q"
+testpaths = ["tests"]
+pythonpath = ["src"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]

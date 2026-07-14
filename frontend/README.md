@@ -1,0 +1,32 @@
+# 北境市场雷达前端
+
+React 19 + vinext + Recharts 可视化网站。浏览器只访问同源的 `/api/*`；服务端代理再连接 Python 推荐 API，DeepSeek 密钥不会进入前端代码。
+
+## 本地启动
+
+先在项目根目录启动模型 API：
+
+```bash
+crossborder serve --host 127.0.0.1 --port 8000
+```
+
+再启动网站：
+
+```bash
+npm install
+npm run dev
+```
+
+默认打开 `http://localhost:3000/`。如模型 API 不在默认地址，在网站进程中设置：
+
+```bash
+RECOMMENDER_API_URL=https://your-protected-api.example.com npm run dev
+```
+
+## 检查
+
+```bash
+npm test
+```
+
+线上发布前必须提供受保护的 HTTPS 模型 API；不能把 `127.0.0.1:8000` 或 DeepSeek 密钥写进线上前端。
